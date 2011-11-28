@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts-config PUBLIC
+          "-//Apache Software Foundation//DTD Struts Configuration 1.3//EN"
+          "http://struts.apache.org/dtds/struts-config_1_3.dtd">
+<struts-config>
+	<form-beans>
+		<form-bean name="userActionForm" type="fr.tutornet.struts.UserForm" />
+		<form-bean name="passwordActionForm" type="fr.tutornet.struts.PasswordForm" />
+		<form-bean name="editPasswordOKActionForm" type="fr.tutornet.struts.EditPasswordOK" />
+	</form-beans>
+
+	<action-mappings>
+		<action path="/createUser" input="/createUser.jsp" name="userActionForm"
+			type="fr.tutornet.struts.CreateUser">
+			<forward name="success" path="/displayUser.jsp" />
+		</action>
+		<action path="/loginUser" input="/login.jsp" name="userActionForm"
+			type="fr.tutornet.struts.LoginUser">
+			<forward name="success" path="/operations.jsp" />
+		</action>
+		<action path="/editPassword" input="/editPassword.jsp" name="passwordActionForm"
+			type="fr.tutornet.struts.EditPassword">
+			<forward name="success" path="/editPasswordOK.do" />
+		</action>
+		<action path="/editPasswordOK" input="/operations.jsp" name="editPasswordOKActionForm"
+			forward="/operations.jsp" />
+		<action path="/viewOthers" type="fr.tutornet.struts.ViewOthers">
+			<forward name="success" path="/viewOthers.jsp"></forward>
+		</action>
+		<action path="/removeAccount" type="fr.tutornet.struts.RemoveAccount">
+			<forward name="success" path="/logout.do" />
+		</action>
+		<action path="/logout" type="fr.tutornet.struts.Logout">
+			<forward name="success" path="/index.jsp" />
+		</action>
+	</action-mappings>
+
+	<message-resources parameter="fr.tutornet.struts.properties.ApplicationResources" />
+</struts-config>

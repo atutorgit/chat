@@ -12,22 +12,28 @@
 	Other users
 	<hr>
 	<h:errors />
-	<form action="editPassword">
-		<table>
+	<table>
+		<tr>
+			<th>Login</th>
+			<th>Admin</th>
+			<th>Edit password</th>
+			<th>Remove account</th>
+		</tr>
+		<c:forEach var="current" items="${users }">
 			<tr>
-				<th>Login</th>
-				<th>Admin</th>
+				<td><c:out value="${current.login }"></c:out></td>
+				<td><input type="checkbox"
+					<c:if test="${current.admin}">checked</c:if> disabled="disabled" /></td>
+				<td><form action="editPassword">
+						<input type="password" name="password" /> <input type="submit"
+							value="Save" />
+					</form></td>
+				<td><form action="removeAccount">
+						<input type="submit" value="Remove" />
+					</form></td>
 			</tr>
-			<c:forEach var="current" items="${users }">
-				<tr>
-					<td><c:out value="${current.login }"></c:out></td>
-					<td><input type="checkbox"
-						<c:if test="${current.admin}">checked</c:if> disabled="disabled" /></td>
-				</tr>
-			</c:forEach>
-		</table>
-		<input type="submit" value="Edit" />
-	</form>
-	<h:link page="/operations.jsp">Cancel</h:link>
+		</c:forEach>
+	</table>
+	<h:link page="/operations.jsp">Back</h:link>
 </body>
 </html>

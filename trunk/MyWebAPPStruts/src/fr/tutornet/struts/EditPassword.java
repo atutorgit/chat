@@ -21,27 +21,35 @@ public class EditPassword extends Action {
 
 		PasswordForm passwordForm = (PasswordForm) form;
 
-		// Retrieve User login from session
+		// Retrieve connected User from session
 		UserForm uf = (UserForm) request.getSession().getAttribute(
 				"userActionForm");
-		String userLogin = uf.getUser().getLogin();
+		User connectedUser = uf.getUser();
 
 		UserDAOImpl dao = new UserDAOImpl();
 
-		// Retrieve User from DB
-		User userFromDB = dao.findUser(userLogin);
+		// Retrieve User to update from DB
+		User userFromDB = dao.findUser(passwordForm.getUserLogin());
 
-		if (userFromDB.getPassword().equals(passwordForm.getOldPassword())) {
-			userFromDB.setPassword(passwordForm.getNewPassword());
-			if (dao.updateUser(userFromDB)) {
-				result = "success";
+		if ((connectedUser.getLogin().equals(userFromDB.getLogin()))
+				|| connectedUser.isAdmin()) {
+			if (userFromDB.getPassword().equals(passwordForm.getOldPassword())) {
+				userFromDB.setPassword(passwordForm.getNewPassword());
+				userFromDB.setAdmin(passwordForm.isUserAdmin());
+				if (dao.updateUser(userFromDB)) {
+					result = "success";
+				} else {
+					response.getWriter().println(
+							"<strong>Database issue!</strong><br>");
+				}
 			} else {
 				response.getWriter().println(
-						"<strong>Database issue!</strong><br>");
+						"<strong>Wrong current password!</strong><br>");
 			}
 		} else {
 			response.getWriter()
-					.println("<strong>Wrong current password!</strong><br>");
+					.println(
+							"<strong>You don't have permission for this action!</strong><br>");
 		}
 		// Looks like this has no effects
 		// if there is a forward match in struts-config.xml (result="success")

@@ -5,6 +5,17 @@
 	id="WebApp_ID" version="2.5">
 	<display-name>MyWebAPPStruts</display-name>
 
+	<filter>
+		<filter-name>UpdateSession Filter</filter-name>
+		<filter-class>fr.tutornet.struts.filters.UpdateSession</filter-class>
+	</filter>
+
+	<!-- Dunno how to map it to a "Struts class" -->
+	<filter-mapping>
+		<filter-name>UpdateSession Filter</filter-name>
+		<servlet-name>action</servlet-name>
+	</filter-mapping>
+
 	<servlet>
 		<servlet-name>action</servlet-name>
 		<servlet-class>org.apache.struts.action.ActionServlet</servlet-class>

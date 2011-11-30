@@ -8,6 +8,8 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 
+import fr.tutornet.struts.model.javabeans.User;
+
 public class PasswordForm extends ActionForm {
 
 	/**
@@ -15,9 +17,19 @@ public class PasswordForm extends ActionForm {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	private String userLogin;
 	private String oldPassword;
 	private String newPassword;
 	private String newPasswordConfirm;
+	private boolean userAdmin;
+
+	public String getUserLogin() {
+		return userLogin;
+	}
+
+	public void setUserLogin(String userLogin) {
+		this.userLogin = userLogin;
+	}
 
 	public String getOldPassword() {
 		return oldPassword;
@@ -43,14 +55,37 @@ public class PasswordForm extends ActionForm {
 		this.newPasswordConfirm = newPasswordConfirm;
 	}
 
+	public boolean isUserAdmin() {
+		return userAdmin;
+	}
+
+	public void setUserAdmin(boolean userAdmin) {
+		this.userAdmin = userAdmin;
+	}
+
 	@Override
 	public ActionErrors validate(ActionMapping mapping,
 			HttpServletRequest request) {
 		ActionErrors result = new ActionErrors();
+		
+		if (userLogin == null || userLogin.length() < 1) {
+			result.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(
+					"error.userLogin"));
+		}
 
 		if (oldPassword == null || oldPassword.length() < 1) {
 			result.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage(
 					"error.oldPassword"));
+		}
+
+		// Retrieve User object from session
+		UserForm uf = (UserForm) request.getSession().getAttribute(
+				"userActionForm");
+		User connectedUser = uf.getUser();
+
+		// Admin doesn't need confirmation
+		if (connectedUser.isAdmin()) {
+			setNewPasswordConfirm(getNewPassword());
 		}
 
 		if ((newPassword == null || newPassword.length() < 1)
@@ -64,4 +99,11 @@ public class PasswordForm extends ActionForm {
 
 		return result;
 	}
+
+	@Override
+	public void reset(ActionMapping mapping, HttpServletRequest request) {
+		// When using checkbox fields, they have to be resetted for proper use
+		setUserAdmin(false);
+	}
+	
 }

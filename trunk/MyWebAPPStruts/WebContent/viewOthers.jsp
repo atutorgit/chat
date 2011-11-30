@@ -12,6 +12,14 @@
 	Other users
 	<hr>
 	<h:errors />
+	<%
+		String adminOrNot = "disabled=\"disabled\"";
+	%>
+	<c:if test="${userActionForm.user.admin}">
+		<%
+			adminOrNot = "";
+		%>
+	</c:if>
 	<table>
 		<tr>
 			<th>Login</th>
@@ -22,14 +30,19 @@
 		<c:forEach var="current" items="${users }">
 			<tr>
 				<td><c:out value="${current.login }"></c:out></td>
-				<td><input type="checkbox"
-					<c:if test="${current.admin}">checked</c:if> disabled="disabled" /></td>
-				<td><form action="editPassword">
-						<input type="password" name="password" /> <input type="submit"
-							value="Save" />
-					</form></td>
-				<td><form action="removeAccount">
-						<input type="submit" value="Remove" />
+				<form action="editPassword.do">
+					<td><input type="checkbox" <%=adminOrNot%>
+						<c:if test="${current.admin}">checked="checked"</c:if>
+						name="userAdmin" /></td>
+					<td><input type="password" name="newPassword" <%=adminOrNot%>
+						value="${current.password }" /> <input type="hidden"
+						name="oldPassword" value="${current.password }" /> <input
+						type="hidden" name="userLogin" value="${current.login }" /> <input
+						type="submit" <%=adminOrNot%> value="Save" /></td>
+				</form>
+				<td><form action="removeAccount.do">
+						<input type="hidden" name="userLogin" value="${current.login }" />
+						<input type="submit" <%=adminOrNot%> value="Remove" />
 					</form></td>
 			</tr>
 		</c:forEach>

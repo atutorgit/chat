@@ -19,6 +19,8 @@
 	<h:link page="/viewOthers.do">View others</h:link>
 	<br>
 	<h:link page="/removeAccount.do">Remove account</h:link>
+	<br>
+	<h:link page="/chat.jsp">Enter to the chat!</h:link>
 
 	<form action="logout.do">
 		<h:submit value="Logout" />

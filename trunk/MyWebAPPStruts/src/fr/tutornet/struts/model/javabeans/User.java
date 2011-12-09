@@ -1,11 +1,22 @@
 package fr.tutornet.struts.model.javabeans;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "USERS")
 public class User {
 	
 	private String login;
 	private String password;
 	private boolean admin;
 	
+	public User() {
+		// Empty constructor used by Hibernate
+	}
+	
+	@Id
 	public String getLogin() {
 		return login;
 	}

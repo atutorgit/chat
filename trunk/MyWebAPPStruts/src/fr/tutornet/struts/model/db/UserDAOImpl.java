@@ -1,135 +1,89 @@
 package fr.tutornet.struts.model.db;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
 import fr.tutornet.struts.model.javabeans.User;
 
 public class UserDAOImpl implements UserDAO {
 
-	private Connection con;
-	private PreparedStatement pstmt;
+	private EntityManagerFactory entityManagerFactory;
 
 	public UserDAOImpl() {
-		try {
-			con = DriverManager.getConnection(
-					"jdbc:mysql://localhost:3306/MyDB", "root", "");
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		entityManagerFactory = Persistence
+				.createEntityManagerFactory("fr.tutornet.struts.model.db.jpa");
 	}
 
 	@Override
 	public boolean insertUser(User u) {
-		int nbRowsAffected = 0;
-		try {
-			pstmt = con
-					.prepareStatement("INSERT INTO users(login, password, admin) VALUES(?, ?, ?)");
+		EntityManager entityManager = entityManagerFactory
+				.createEntityManager();
+		entityManager.getTransaction().begin();
 
-			pstmt.setString(1, u.getLogin());
-			pstmt.setString(2, u.getPassword());
-			pstmt.setBoolean(3, u.isAdmin());
+		entityManager.persist(u);
 
-			nbRowsAffected = pstmt.executeUpdate();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return nbRowsAffected > 0;
+		entityManager.getTransaction().commit();
+		entityManager.close();
+
+		return true;
 	}
 
 	@Override
 	public boolean deleteUser(User u) {
-		int nbRowsAffected = 0;
-		try {
-			pstmt = con.prepareStatement("DELETE FROM users WHERE login= ?");
+		EntityManager entityManager = entityManagerFactory
+				.createEntityManager();
+		entityManager.getTransaction().begin();
+		
+		User toRemove = entityManager.find(User.class, u.getLogin());
+		entityManager.remove(toRemove);
 
-			pstmt.setString(1, u.getLogin());
-
-			nbRowsAffected = pstmt.executeUpdate();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return nbRowsAffected > 0;
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		return true;
 	}
 
 	@Override
 	public User findUser(String login) {
-		String password = "";
-		boolean admin = false;
-		try {
-			pstmt = con
-					.prepareStatement("SELECT password, admin FROM users WHERE login=?");
+		EntityManager entityManager = entityManagerFactory
+				.createEntityManager();
+		entityManager.getTransaction().begin();
+		ArrayList<User> result = (ArrayList<User>) entityManager.createQuery(
+				"from User where login='" + login + "'").getResultList();
+		entityManager.getTransaction().commit();
+		entityManager.close();
 
-			pstmt.setString(1, login);
-
-			ResultSet rs = pstmt.executeQuery();
-			while (rs.next()) {
-				password = rs.getString("PASSWORD");
-				admin = rs.getBoolean("ADMIN");
-			}
-
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		User u = new User();
-		u.setLogin(login);
-		u.setPassword(password);
-		u.setAdmin(admin);
-
-		return u;
+		return result.size() >= 1 ? (User) result.get(0) : new User();
 	}
 
 	@Override
 	public boolean updateUser(User u) {
-		int nbRowsAffected = 0;
-		try {
-			pstmt = con
-					.prepareStatement("UPDATE users SET password=?, admin=? WHERE login=?");
+		EntityManager entityManager = entityManagerFactory
+				.createEntityManager();
+		entityManager.getTransaction().begin();
 
-			pstmt.setString(1, u.getPassword());
-			pstmt.setBoolean(2, u.isAdmin());
-			pstmt.setString(3, u.getLogin());
+		entityManager.merge(u);
 
-			nbRowsAffected = pstmt.executeUpdate();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return nbRowsAffected > 0;
+		entityManager.getTransaction().commit();
+		entityManager.close();
+
+		return true;
 	}
 
 	@Override
 	public Collection<User> allUsers() {
-		Collection<User> users = new ArrayList<User>();
+		EntityManager entityManager = entityManagerFactory
+				.createEntityManager();
+		entityManager.getTransaction().begin();
+		ArrayList<User> result = (ArrayList<User>) entityManager.createQuery(
+				"from User").getResultList();
+		entityManager.getTransaction().commit();
+		entityManager.close();
 
-		try {
-			pstmt = con.prepareStatement("SELECT * FROM users");
-
-			ResultSet rs = pstmt.executeQuery();
-			while (rs.next()) {
-				User u = new User();
-				u.setLogin(rs.getString("LOGIN"));
-				u.setPassword(rs.getString("PASSWORD"));
-				u.setAdmin(rs.getBoolean("ADMIN"));
-
-				users.add(u);
-			}
-
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return users;
+		return result;
 	}
 
 }
